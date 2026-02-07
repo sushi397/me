@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Ball 3D (FPS)</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: sans-serif;
+        }
+
+        #info {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            color: #00ffff;
+            text-shadow: 0 0 5px #00ffff;
+            pointer-events: none;
+            font-size: 20px;
+        }
+
+        #gameover {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff0055;
+            font-size: 40px;
+            text-shadow: 0 0 10px #ff0055;
+            display: none;
+            text-align: center;
+            pointer-events: none;
+            /* Allow clicks to pass through */
+        }
+
+        #win {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #00ff00;
+            font-size: 40px;
+            text-shadow: 0 0 10px #00ff00;
+            display: none;
+            text-align: center;
+            pointer-events: none;
+            /* Allow clicks to pass through */
+        }
+
+        /* Menu UI */
+        #menu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #fff;
+            text-shadow: 0 0 10px #00ffff;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="info">Click to Start FPS Mode using Mouse + WASD, SPACE to Jump, ESC to unlock</div>
+    <div id="gameover">GAME OVER<br><span style="font-size:20px; color:#fff">Press SPACE to Restart</span></div>
+    <div id="win">COURSE CLEAR!<br><span style="font-size:20px; color:#fff">Press SPACE to Restart</span></div>
+
+    <!-- Menu UI -->
+    <div id="menu">
+        <h1 style="font-size:50px; margin-bottom:10px;">NEON BALL 3D (FPS)</h1>
+        <div id="diff-select" style="font-size:25px; line-height:1.5;">
+            <div id="opt-easy">EASY</div>
+            <div id="opt-normal">NORMAL</div>
+            <div id="opt-hard">HARD</div>
+        </div>
+        <p class="blink" style="margin-top:20px;">CLICK TO START</p>
+    </div>
+
+    <!-- Import Map for Three.js -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        // --- Configuration ---
+        // Super Hard Physics (Modified: Non-slippery)
+        const WORLD_GRAVITY = 40;
+        const JUMP_FORCE = 12.2;
+        const MOVE_SPEED = 20;
+        const ACCEL = 200; // Increased to match high friction
+        const FRICTION = 10.0; // High friction = No slide
+        const AIR_FRICTION = 2.0; // Better air control
+        const MOUSE_SENSITIVITY = 0.002;
+
+        // --- Globals ---
+        let scene, camera, renderer;
+        let clock;
+        let player; // Mesh
+        let playerVelocity = new THREE.Vector3();
+        let playerOnGround = false;
+
+        let pitch = 0; // Camera pitch
+        let yaw = 0; // Camera yaw
+
+        // Input
+        const keys = { w: false, a: false, s: false, d: false, space: false };
+        let isLocked = false;
+
+        // Game State
+        let gameState = 'MENU';
+
+        // Difficulty
+        let difficulty = 'NORMAL';
+        let menuSelection = 1;
+
+        // Level Objects (Collision)
+        let platforms = [];
+
+        init();
+        animate();
+
+        function init() {
+            // Scene Setup
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x050510);
+            scene.fog = new THREE.FogExp2(0x050510, 0.02);
+
+            clock = new THREE.Clock();
+
+            // Camera (FPS style setup - we start at 0,0,0)
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            document.body.appendChild(renderer.domElement);
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0x404040, 2);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 2);
+            dirLight.position.set(10, 20, 10);
+            dirLight.castShadow = true;
+            dirLight.shadow.camera.top = 30;
+            dirLight.shadow.camera.bottom = -30;
+            dirLight.shadow.camera.left = -30;
+            dirLight.shadow.camera.right = 30;
+            scene.add(dirLight);
+
+            // --- Player ---
+            const geometry = new THREE.SphereGeometry(0.5, 32, 32);
+            // Wireframe or invisible mesh so we don't block view but cast shadow
+            const material = new THREE.MeshStandardMaterial({
+                color: 0x00ffff,
+                transparent: true,
+                opacity: 0.2, // Slightly visible for reference
+                wireframe: true
+            });
+            player = new THREE.Mesh(geometry, material);
+            player.castShadow = true;
+            player.position.set(0, 2, 0);
+            scene.add(player);
+
+            // Initial Level
+            createLevel('NORMAL');
+
+            // Input Listeners
+            window.addEventListener('keydown', (e) => onKey(e, true));
+            window.addEventListener('keyup', (e) => onKey(e, false));
+            window.addEventListener('resize', onWindowResize);
+
+            // Pointer Lock & Drag Events
+            const canvasEl = renderer.domElement;
+
+            // Allow click on canvas to lock
+            canvasEl.addEventListener('click', () => {
+                if (gameState !== 'MENU' && gameState !== 'GAMEOVER' && gameState !== 'WIN') {
+                    if (!isLocked) canvasEl.requestPointerLock();
+                }
+            });
+
+            // Menu Click start
+            document.getElementById('menu').addEventListener('click', () => {
+                if (gameState === 'MENU' && !isLocked) {
+                    canvasEl.requestPointerLock();
+                }
+            });
+
+            document.addEventListener('pointerlockchange', () => {
+                if (document.pointerLockElement === canvasEl) {
+                    isLocked = true;
+                    if (gameState === 'MENU') resetGame();
+                } else {
+                    isLocked = false;
+                }
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                // Support both Pointer Lock AND Dragging (if lock fails or user prefers drag)
+                // If locked, move always works. If not locked, need button press (drag).
+                if (isLocked || (e.buttons === 1 && gameState === 'PLAYING')) {
+                    yaw -= e.movementX * MOUSE_SENSITIVITY;
+                    pitch -= e.movementY * MOUSE_SENSITIVITY;
+                    // Clamp pitch
+                    pitch = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, pitch));
+                }
+            });
+
+            updateMenuUI();
+        }
+
+        function updateMenuUI() {
+            const opts = ['opt-easy', 'opt-normal', 'opt-hard'];
+            opts.forEach((id, idx) => {
+                const el = document.getElementById(id);
+                if (idx === menuSelection) {
+                    el.style.color = "#ffff00";
+                    el.innerHTML = `> ${el.innerText.replace(/> | <|/g, '')} <`;
+                } else {
+                    el.style.color = "#fff";
+                    el.innerHTML = el.innerText.replace(/> | <|/g, '');
+                }
+            });
+        }
+
+        function createPlatform(x, y, z, w, h, d, color = 0xff00ff) {
+            const geo = new THREE.BoxGeometry(w, h, d);
+            // LED Style Material
+            const mat = new THREE.MeshStandardMaterial({
+                color: 0x000000, // Black base for contrast
+                emissive: color, // The color comes from light emission
+                emissiveIntensity: 0.8, // Bright glow
+                transparent: true,
+                opacity: 0.9,
+                roughness: 0.1,
+                metalness: 0.8
+            });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.set(x, y, z);
+            mesh.receiveShadow = true;
+            scene.add(mesh);
+
+            // Bright white edges for frame
+            const edges = new THREE.EdgesGeometry(geo);
+            const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.8, transparent: true }));
+            mesh.add(line);
+
+            platforms.push({ mesh: mesh, box: new THREE.Box3().setFromObject(mesh), type: 'normal' });
+            return mesh;
+        }
+
+        function createGoal(x, y, z) {
+            const geo = new THREE.CylinderGeometry(0, 0.5, 2, 8);
+            const mat = new THREE.MeshStandardMaterial({ color: 0x00fe00, emissive: 0x00fe00 });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.set(x, y + 1, z);
+            scene.add(mesh);
+            platforms.push({ mesh: mesh, box: new THREE.Box3().setFromObject(mesh), type: 'goal' });
+            const glowGeo = new THREE.SphereGeometry(1.5, 16, 16);
+            const glowMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.2, wireframe: true });
+            const glow = new THREE.Mesh(glowGeo, glowMat);
+            mesh.add(glow);
+        }
+
+        function clearLevel() {
+            for (let p of platforms) {
+                scene.remove(p.mesh);
+            }
+            platforms = [];
+        }
+
+        function createLevel(diff) {
+            clearLevel();
+
+            // Start Platform (Safe zone)
+            createPlatform(0, 0, 0, 3, 1, 3, 0x555555);
+
+            if (diff === 'EASY') {
+                // Easy is now what Normal used to be roughly
+                createPlatform(0, 0, -6, 2, 1, 4, 0x00aaaa);
+                createPlatform(0, 1, -14, 2, 1, 4, 0x00aaaa);
+                createPlatform(0, 2, -22, 2, 1, 4, 0x00aaaa);
+                createPlatform(0, 2, -32, 6, 1, 6, 0x555555);
+                createGoal(0, 2, -32);
+
+            } else if (diff === 'NORMAL') {
+                // Normal is significantly harder
+                createPlatform(0, 0, -5, 1.5, 1, 2);
+                createPlatform(0, 1, -10, 1.5, 1, 2);
+                createPlatform(3, 2, -10, 1.5, 1, 2); // Side step
+
+                // Jumping stones
+                createPlatform(6, 2.5, -14, 1.0, 0.5, 1.0, 0x00aaaa); // Smaller
+                createPlatform(6, 3.0, -18, 1.0, 0.5, 1.0, 0x00aaaa);
+                createPlatform(3, 3.5, -22, 1.5, 0.5, 1.5);
+                createPlatform(0, 2.5, -26, 1.0, 0.5, 1.0, 0xff00ff); // Bounce? (Visual only for now)
+
+                createPlatform(0, 2, -34, 4, 1, 4, 0x555555);
+                createGoal(0, 2, -34);
+
+            } else if (diff === 'HARD') {
+                // Warning color
+                scene.background = new THREE.Color(0x100000);
+                scene.fog = new THREE.FogExp2(0x100000, 0.02);
+
+                createPlatform(0, 0, -5, 1.0, 1, 2, 0xff0000); // Narrow launch
+
+                // Spiral staircase of TINY blocks
+                for (let i = 0; i < 10; i++) {
+                    let angle = i * 0.6;
+                    let radius = 7;
+                    let x = Math.sin(angle) * radius;
+                    let z = -8 - (Math.cos(angle) * radius + 6);
+                    let y = i * 1.0;
+                    createPlatform(x, y, z, 1.0, 0.5, 1.0, 0xffaa00);
+                }
+
+                // Long jump sequence
+                createPlatform(0, 8, -40, 1.5, 1, 2);
+                createPlatform(0, 8, -50, 1.0, 1, 1.0); // Tiny landing
+                createPlatform(0, 8, -58, 1.0, 1, 1.0);
+
+                createPlatform(0, 8, -65, 4, 1, 4, 0x555555);
+                createGoal(0, 8, -65);
+            }
+            if (scene.children.find(c => c.isPoints)) return;
+            const starsGeo = new THREE.BufferGeometry();
+            const starsCount = 500;
+            const posArray = new Float32Array(starsCount * 3);
+            for (let i = 0; i < starsCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 100;
+            }
+            starsGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            const starsMat = new THREE.PointsMaterial({ size: 0.1, color: 0xffffff });
+            const starMesh = new THREE.Points(starsGeo, starsMat);
+            scene.add(starMesh);
+        }
+
+        function onKey(e, pressed) {
+            const key = e.code;
+            if (key === 'KeyW' || key === 'ArrowUp') { keys.w = pressed; }
+            if (key === 'KeyA' || key === 'ArrowLeft') keys.a = pressed;
+            if (key === 'KeyS' || key === 'ArrowDown') { keys.s = pressed; }
+            if (key === 'KeyD' || key === 'ArrowRight') keys.d = pressed;
+
+            if (key === 'Space') {
+                if (pressed && !keys.space) {
+                    if (gameState === 'GAMEOVER' || gameState === 'WIN') {
+                        window.location.reload();
+                    }
+                }
+                keys.space = pressed;
+            }
+
+            if (gameState === 'MENU' && pressed) {
+                if (key === 'ArrowUp' || key === 'KeyW') {
+                    menuSelection = (menuSelection + 2) % 3;
+                    updateMenuUI();
+                } else if (key === 'ArrowDown' || key === 'KeyS') {
+                    menuSelection = (menuSelection + 1) % 3;
+                    updateMenuUI();
+                }
+            }
+        }
+
+        function resetGame() {
+            switch (menuSelection) {
+                case 0: difficulty = 'EASY'; break;
+                case 1: difficulty = 'NORMAL'; break;
+                case 2: difficulty = 'HARD'; break;
+            }
+            createLevel(difficulty);
+            player.position.set(0, 2, 0);
+            playerVelocity.set(0, 0, 0);
+            playerOnGround = false;
+            yaw = 0; pitch = 0;
+            gameState = 'PLAYING';
+            document.getElementById('menu').style.display = 'none';
+            document.getElementById('gameover').style.display = 'none';
+            document.getElementById('win').style.display = 'none';
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function updatePhysics(dt) {
+            if (gameState !== 'PLAYING') return;
+
+            // Movement relative to Camera Angle (Yaw)
+            const forward = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
+            const right = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
+
+            const moveForce = new THREE.Vector3(0, 0, 0);
+
+            if (keys.w) moveForce.add(forward);
+            if (keys.s) moveForce.sub(forward);
+            if (keys.a) moveForce.sub(right);
+            if (keys.d) moveForce.add(right);
+
+            if (moveForce.length() > 0) moveForce.normalize();
+
+            // Apply Accel
+            if (moveForce.length() > 0) {
+                playerVelocity.x += moveForce.x * ACCEL * dt;
+                playerVelocity.z += moveForce.z * ACCEL * dt;
+            }
+
+            // Friction
+            const currentFriction = playerOnGround ? FRICTION : AIR_FRICTION;
+            const dampFactor = Math.exp(-currentFriction * dt);
+            playerVelocity.x *= dampFactor;
+            playerVelocity.z *= dampFactor;
+
+            // Gravity
+            playerVelocity.y -= WORLD_GRAVITY * dt;
+
+            // Jump
+            if (keys.space && playerOnGround) {
+                playerVelocity.y = JUMP_FORCE;
+                playerOnGround = false;
+            }
+
+            const deltaPos = playerVelocity.clone().multiplyScalar(dt);
+            player.position.add(deltaPos);
+
+            // Limited Collision (Bottom point of sphere)
+            playerOnGround = false;
+            const radius = 0.5;
+            const center = player.position;
+
+            for (let plat of platforms) {
+                const box = plat.box;
+                const closestPoint = new THREE.Vector3();
+                closestPoint.copy(center).clamp(box.min, box.max);
+                const distance = center.distanceTo(closestPoint);
+
+                if (distance < radius) {
+                    if (plat.type === 'goal') {
+                        gameState = 'WIN';
+                        document.getElementById('win').style.display = 'block';
+                        document.exitPointerLock();
+                        isLocked = false;
+                        return;
+                    }
+                    // Resolve
+                    const direction = new THREE.Vector3().subVectors(center, closestPoint).normalize();
+                    const overlap = radius - distance;
+
+                    if (center.y > box.max.y - 0.2 && playerVelocity.y <= 0) {
+                        player.position.y = box.max.y + radius;
+                        playerVelocity.y = 0;
+                        playerOnGround = true;
+                    } else {
+                        // Push out horizontal
+                        const pushVec = direction.multiplyScalar(overlap);
+                        pushVec.y = 0; // Only push horizontal
+                        player.position.add(pushVec);
+                        // Reflect/Stop
+                        playerVelocity.x *= 0.5;
+                        playerVelocity.z *= 0.5;
+                    }
+                }
+            }
+
+            if (player.position.y < -10) {
+                gameState = 'GAMEOVER';
+                document.getElementById('gameover').style.display = 'block';
+                document.exitPointerLock();
+                isLocked = false;
+            }
+        }
+
+        function updateCamera() {
+            if (gameState === 'MENU') {
+                camera.position.x = Math.sin(Date.now() * 0.0005) * 15;
+                camera.position.z = Math.cos(Date.now() * 0.0005) * 15;
+                camera.position.y = 5;
+                camera.lookAt(0, 0, 0);
+                return;
+            }
+
+            // FPS Camera: Attached to player
+            const EYE_HEIGHT = 0.5;
+            camera.position.copy(player.position);
+            camera.position.y += EYE_HEIGHT;
+
+            // Apply rotation order Y then X
+            camera.quaternion.setFromEuler(new THREE.Euler(pitch, yaw, 0, 'YXZ'));
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const dt = Math.min(clock.getDelta(), 0.1);
+            updatePhysics(dt);
+            updateCamera();
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+
+</html>

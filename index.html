@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>刺身 - Portfolio</title>
+    <meta name="description" content="クリエイター 刺身のポートフォリオサイトです。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Montserrat:wght@700&display=swap"
+        rel="stylesheet">
+    <style>
+        /* Reset & Base Styles */
+        :root {
+            --primary-color: #2D3436;
+            --accent-color: #0984e3;
+            --text-color: #dfe6e9;
+            --bg-color: #000000;
+            --card-bg: #1e272e;
+            --nav-bg: rgba(0, 0, 0, 0.95);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --font-heading: 'Montserrat', sans-serif;
+            --font-body: 'Noto Sans JP', sans-serif;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary-color: #dfe6e9;
+                --accent-color: #74b9ff;
+                --text-color: #dfe6e9;
+                --bg-color: #1e272e;
+                --card-bg: #2d3436;
+                --nav-bg: rgba(30, 39, 46, 0.95);
+                --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            line-height: 1.6;
+            opacity: 0;
+            animation: fadeIn 1s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition);
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background-color: var(--nav-bg);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .header__container {
+            height: 80px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text-color);
+        }
+
+        .nav__list {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav__link {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .nav__link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--accent-color);
+            transition: var(--transition);
+        }
+
+        .nav__link:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero__container {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+        }
+
+        .hero__title {
+            font-family: var(--font-heading);
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUp 0.8s ease-out 0.2s forwards;
+        }
+
+        .highlight {
+            color: var(--accent-color);
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero__subtitle {
+            font-size: 1.25rem;
+            margin-bottom: 3rem;
+            opacity: 0.8;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUp 0.8s ease-out 0.4s forwards;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background-color: var(--accent-color);
+            color: #fff;
+            border-radius: 50px;
+            font-weight: 600;
+            font-family: var(--font-heading);
+            box-shadow: 0 4px 15px rgba(9, 132, 227, 0.3);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUp 0.8s ease-out 0.6s forwards;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(9, 132, 227, 0.4);
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Section Common */
+        .section {
+            padding: 8rem 0;
+        }
+
+        .section__title {
+            font-family: var(--font-heading);
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+
+        .section__title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background-color: var(--accent-color);
+            margin: 1rem auto 0;
+            border-radius: 2px;
+        }
+
+        /* About Section */
+        .about__text {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .about__text p {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Portfolio Section */
+        .portfolio__grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 3rem;
+        }
+
+        .portfolio-item {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .portfolio-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .portfolio-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .portfolio__image-wrapper {
+            position: relative;
+            padding-top: 60%;
+            /* Aspect ratio */
+            overflow: hidden;
+        }
+
+        .portfolio__image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .portfolio-item:hover .portfolio__image {
+            transform: scale(1.05);
+        }
+
+        .portfolio__content {
+            padding: 2rem;
+        }
+
+        .portfolio__title {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .portfolio__desc {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .portfolio__link {
+            display: inline-flex;
+            align-items: center;
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+        .portfolio__link span {
+            margin-left: 0.5rem;
+            transition: transform 0.3s;
+        }
+
+        .portfolio__link:hover span {
+            transform: translateX(5px);
+        }
+
+        /* Footer */
+        .footer {
+            padding: 4rem 0;
+            background-color: var(--card-bg);
+            margin-top: 4rem;
+        }
+
+        .footer__text {
+            text-align: center;
+            opacity: 0.6;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero__title {
+                font-size: 3rem;
+            }
+
+            .section {
+                padding: 5rem 0;
+            }
+
+            .portfolio__grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="container header__container">
+            <a href="#" class="logo">刺身</a>
+            <nav class="nav">
+                <ul class="nav__list">
+                    <li class="nav__item"><a href="#about" class="nav__link">About</a></li>
+                    <li class="nav__item"><a href="#portfolio" class="nav__link">作品集</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container hero__container">
+                <h1 class="hero__title">Hello, I'm <span class="highlight">刺身</span>.</h1>
+                <p class="hero__subtitle">Creative Creator based in Japan.</p>
+                <a href="#portfolio" class="btn">View My Work</a>
+            </div>
+        </section>
+
+        <section id="about" class="section about">
+            <div class="container">
+                <h2 class="section__title">About Me</h2>
+                <div class="about__content">
+                    <div class="about__text">
+                        <p>初めまして、クリエイターの 刺身 です。</p>
+                        <p>シンプルで使いやすいデザインと、心地よいユーザー体験を大切にしています。</p>
+                        <p>Web制作を中心に、グラフィックデザインやイラストレーションなど、幅広く活動しています。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="portfolio" class="section portfolio">
+            <div class="container">
+                <h2 class="section__title">作品集</h2>
+                <div id="portfolio-grid" class="portfolio__grid">
+                    <!-- Portfolio items will be inserted here by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+
+    </main>
+
+    <footer class="footer">
+        <div class="container footer__container">
+            <p class="footer__text">&copy; 2024 刺身. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const portfolioItems = [
+            {
+                title: "Retro Ping Pong",
+                description: "クラシックなピンポンゲーム。反射神経を試そう！",
+                image: "pingpong_thumb.png",
+                link: "pingpong.html"
+            },
+            {
+                title: "Neon Tetris",
+                description: "ネオン輝く落ち物パズル。ハイスコアを目指せ！",
+                image: "tetris_thumb.svg",
+                link: "tetris.html"
+            },
+            {
+                title: "Neon Ball 3D",
+                description: "蛍光色の世界を翔ける、超高難易度3Dアスレチック。FPS視点対応。",
+                image: "portfolio-1.png",
+                link: "athletic3d.html"
+            },
+            {
+                title: "Battle Royale Split",
+                description: "画面分割で協力プレイ！シールド敵や巨大ボスに挑め！",
+                image: "battle_royale_thumb.png",
+                link: "battle_royale.html"
+            },
+            {
+                title: "Aurora Analytics Dashboard",
+                description: "データ分析の未来を可視化する、直感的で美しいダッシュボードUI。",
+                image: "portfolio-1.png",
+                link: "#"
+            },
+            {
+                title: "Wanderlust Travel",
+                description: "旅への没入感を高める、鮮やかでダイナミックなトラベルサイト。",
+                image: "portfolio-2.png",
+                link: "#"
+            },
+            {
+                title: "Atelier Vendôme",
+                description: "洗練された時を刻む、ラグジュアリーなウォッチブランドのECサイト。",
+                image: "portfolio-3.png",
+                link: "#"
+            }
+        ];
+
+        const portfolioGrid = document.getElementById('portfolio-grid');
+
+        function renderPortfolio() {
+            portfolioItems.forEach((item, index) => {
+                const card = document.createElement('article');
+                card.className = 'portfolio-item';
+                card.style.transitionDelay = `${index * 0.1}s`; // Staggered animation
+
+                card.innerHTML = `
+                    <a href="${item.link}" class="portfolio__link-wrapper">
+                        <div class="portfolio__image-wrapper">
+                            <img src="${item.image}" alt="${item.title}" class="portfolio__image" loading="lazy">
+                        </div>
+                        <div class="portfolio__content">
+                            <h3 class="portfolio__title">${item.title}</h3>
+                            <p class="portfolio__desc">${item.description}</p>
+                            <span class="portfolio__link">View Project <span>&rarr;</span></span>
+                        </div>
+                    </a>
+                `;
+
+                portfolioGrid.appendChild(card);
+            });
+        }
+
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target); // Animate only once
+                }
+            });
+        }, observerOptions);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPortfolio();
+
+            // Observe all portfolio items
+            const cards = document.querySelectorAll('.portfolio-item');
+            cards.forEach(card => observer.observe(card));
+
+        });
+    </script>
+</body>
+
+</html>
