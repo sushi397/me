@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D SUSHI DODGE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@800&family=Zen+Maru+Gothic:wght@900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Three.js Import map -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <!-- WebGL Canvas Anchor -->
+    <div id="canvas-container"></div>
+
+    <!-- UI Layer -->
+    <div class="ui-layer">
+        <header class="header-ui">
+            <h1 class="logo">回避寿司 3D<br>SUSHI DODGE</h1>
+            <div class="score-board">
+                <span>SCORE</span>
+                <span id="scoreDisplay" class="score-value">0</span>
+            </div>
+        </header>
+
+        <!-- モーダル系 -->
+        <div id="startScreen" class="overlay">
+            <div class="panel">
+                <h2>SUSHI DODGE 3D</h2>
+                <div class="level-select">
+                    <button class="btn btn-level" data-level="1">レベル 1 <span>(初級)</span></button>
+                    <button class="btn btn-level" data-level="2">レベル 2 <span>(中級)</span></button>
+                    <button class="btn btn-level" data-level="3">レベル 3 <span>(上級)</span></button>
+                    <button class="btn btn-level" data-level="4">レベル 4 <span>(神級)</span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- プレイ中のホームボタン -->
+        <div id="btnHome" class="home-button hidden">
+            <img src="maguro_icon.png" alt="Home">
+        </div>
+            </div>
+        </div>
+
+        <div id="gameOverScreen" class="overlay hidden">
+            <div class="panel game-over-panel">
+                <h2 id="statusTitle">ゲームオーバー</h2>
+                <p id="statusMsg">お寿司に激突しました💥</p>
+                <div class="final-score-box">
+                    <span>SCORE</span>
+                    <span id="finalScoreDisplay">0</span>
+                </div>
+                <!-- 自動遷移するのでボタンは補助的な位置づけ -->
+                <button id="btnRestart" class="btn hidden">RETRY</button>
+            </div>
+        </div>
+
+        <!-- 祝賀演出用オーバーレイ -->
+        <div id="celebration-overlay" class="celebration-overlay hidden">
+            <div id="cracker-left" class="cracker"><img src="cracker_left.svg"></div>
+            <div id="cracker-right" class="cracker"><img src="cracker_right.svg"></div>
+            <div id="confetti-container"></div>
+        </div>
+    </div>
+
+    <!-- JavaScript module load -->
+    <script type="module" src="script.js"></script>
+</body>
+
+</html>

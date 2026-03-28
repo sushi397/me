@@ -229,18 +229,6 @@
             border-radius: 2px;
         }
 
-        /* About Section */
-        .about__text {
-            max-width: 800px;
-            margin: 0 auto;
-            text-align: center;
-            font-size: 1.1rem;
-        }
-
-        .about__text p {
-            margin-bottom: 1.5rem;
-        }
-
         /* Portfolio Section */
         .portfolio__grid {
             display: grid;
@@ -358,7 +346,6 @@
             <a href="#" class="logo">刺身</a>
             <nav class="nav">
                 <ul class="nav__list">
-                    <li class="nav__item"><a href="#about" class="nav__link">About</a></li>
                     <li class="nav__item"><a href="#portfolio" class="nav__link">作品集</a></li>
                 </ul>
             </nav>
@@ -374,18 +361,7 @@
             </div>
         </section>
 
-        <section id="about" class="section about">
-            <div class="container">
-                <h2 class="section__title">About Me</h2>
-                <div class="about__content">
-                    <div class="about__text">
-                        <p>初めまして、クリエイターの 刺身 です。</p>
-                        <p>シンプルで使いやすいデザインと、心地よいユーザー体験を大切にしています。</p>
-                        <p>Web制作を中心に、グラフィックデザインやイラストレーションなど、幅広く活動しています。</p>
-                    </div>
-                </div>
-            </div>
-        </section>
+
 
         <section id="portfolio" class="section portfolio">
             <div class="container">
@@ -408,15 +384,27 @@
     <script>
         const portfolioItems = [
             {
-                title: "Retro Ping Pong",
-                description: "クラシックなピンポンゲーム。反射神経を試そう！",
+                title: "NEON QUEST SHOOTER",
+                description: "RPG要素を融合したネオン・シューティング。レベルを上げ、最強の機体をビルドして5分間のミッションを生き残れ！",
+                image: "rpg_shooter_thumb.png",
+                link: "rpg-shooter.html"
+            },
+            {
+                title: "Sushi Dodge 3D",
+                description: "4つのレーンを駆使して、上から降ってくるお寿司を避け続けろ！",
+                image: "sushi-dodge_thumb.webp",
+                link: "sushi-dodge/index.html"
+            },
+            {
+                title: "Retro Ping Pong 2.0",
+                description: "最新のシンセウェーブ演出で蘇る、究極のピンポン体験。反射神経の限界に挑め！",
                 image: "pingpong_thumb.png",
                 link: "pingpong.html"
             },
             {
-                title: "Neon Tetris",
-                description: "ネオン輝く落ち物パズル。ハイスコアを目指せ！",
-                image: "tetris_thumb.svg",
+                title: "Retro Tetris",
+                description: "ゲームボーイ風のノスタルジックな落ち物パズル。走査線とドットの質感を再現。",
+                image: "tetris_thumb.png",
                 link: "tetris.html"
             },
             {
@@ -426,28 +414,16 @@
                 link: "athletic3d.html"
             },
             {
+                title: "8x8 Tic-Tac-Toe",
+                description: "N目並べ対応の進化したレトロまるばつゲーム。強力なAI搭載！",
+                image: "8x8-tic-tac-toe_thumb.webp",
+                link: "8x8-tic-tac-toe/index.html"
+            },
+            {
                 title: "Battle Royale Split",
                 description: "画面分割で協力プレイ！シールド敵や巨大ボスに挑め！",
                 image: "battle_royale_thumb.png",
                 link: "battle_royale.html"
-            },
-            {
-                title: "Aurora Analytics Dashboard",
-                description: "データ分析の未来を可視化する、直感的で美しいダッシュボードUI。",
-                image: "portfolio-1.png",
-                link: "#"
-            },
-            {
-                title: "Wanderlust Travel",
-                description: "旅への没入感を高める、鮮やかでダイナミックなトラベルサイト。",
-                image: "portfolio-2.png",
-                link: "#"
-            },
-            {
-                title: "Atelier Vendôme",
-                description: "洗練された時を刻む、ラグジュアリーなウォッチブランドのECサイト。",
-                image: "portfolio-3.png",
-                link: "#"
             }
         ];
 

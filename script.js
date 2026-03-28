@@ -1,23 +1,4 @@
-const portfolioItems = [
-    {
-        title: "Aurora Analytics Dashboard",
-        description: "データ分析の未来を可視化する、直感的で美しいダッシュボードUI。",
-        image: "portfolio-1.png",
-        link: "#"
-    },
-    {
-        title: "Wanderlust Travel",
-        description: "旅への没入感を高める、鮮やかでダイナミックなトラベルサイト。",
-        image: "portfolio-2.png",
-        link: "#"
-    },
-    {
-        title: "Atelier Vendôme",
-        description: "洗練された時を刻む、ラグジュアリーなウォッチブランドのECサイト。",
-        image: "portfolio-3.png",
-        link: "#"
-    }
-];
+const portfolioItems = [];
 
 const portfolioGrid = document.getElementById('portfolio-grid');
 
@@ -62,7 +43,7 @@ const observer = new IntersectionObserver((entries) => {
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     renderPortfolio();
-    
+
     // Observe all portfolio items
     const cards = document.querySelectorAll('.portfolio-item');
     cards.forEach(card => observer.observe(card));

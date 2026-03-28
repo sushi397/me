@@ -1,0 +1,338 @@
+:root {
+    --color-accent: #ff4757;
+    --color-text: #fff;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    background-color: #000;
+    color: var(--color-text);
+    overflow: hidden;
+    /* Prevent scrolling for Fullscreen Canvas */
+    width: 100vw;
+    height: 100vh;
+}
+
+/* Three.js Canvas Container */
+#canvas-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    /* Behind UI */
+}
+
+/* 寿司屋風 UI Layer */
+.ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    /* Let clicks pass through to canvas if needed */
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header UI (暖簾風) */
+.header-ui {
+    width: 100%;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to bottom, rgba(50, 60, 45, 0.95), transparent);
+    /* 湯呑み色 */
+    border-bottom: 3px solid #8e6530;
+    /* 木の枠組風 */
+}
+
+.logo {
+    font-family: 'Shippori Mincho B1', serif;
+    font-size: 1.8rem;
+    color: #fff;
+    line-height: 1.2;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8), 0 0 10px #ffbb77;
+    letter-spacing: 0.1em;
+}
+
+.score-board {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-family: 'Shippori Mincho B1', serif;
+    font-weight: 800;
+    text-shadow: 1px 1px 3px #000;
+}
+
+.score-board span:first-child {
+    font-size: 1rem;
+    color: #e0d5c1;
+    /* 和紙風の色 */
+}
+
+.score-value {
+    font-size: 2.5rem;
+    color: #fff;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 2px 2px 0px #000;
+}
+
+/* UI Overlays (お品書き・木札風) */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 10, 10, 0.7);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: auto;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.panel {
+    background: #fdf5e6;
+    /* 生成色（和紙） */
+    border: 8px solid #5c3a21;
+    /* 濃い木目色 */
+    border-radius: 4px;
+    /* 四角みを強調 */
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9), inset 0 0 30px rgba(139, 69, 19, 0.1);
+    max-width: 90%;
+    position: relative;
+}
+
+/* 四隅に飾り枠風の装飾をCSSで作る */
+.panel::before,
+.panel::after {
+    content: '';
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    height: 2px;
+    background: #d4a373;
+}
+
+.panel::before {
+    top: 10px;
+}
+
+.panel::after {
+    bottom: 10px;
+}
+
+.panel h2 {
+    font-size: 3rem;
+    margin-bottom: 25px;
+    color: #8b0000;
+    /* 濃い赤（漆塗り風） */
+    font-family: 'Shippori Mincho B1', serif;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.panel p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin-bottom: 35px;
+    color: #333;
+    /* 墨色 */
+    font-family: 'Shippori Mincho B1', serif;
+    font-weight: bold;
+}
+
+.btn {
+    background: #465B45;
+    /* 抹茶色/湯呑み色 */
+    color: #fff;
+    border: 2px solid #283726;
+    padding: 15px 50px;
+    font-size: 1.5rem;
+    font-family: 'Shippori Mincho B1', serif;
+    font-weight: 900;
+    border-radius: 4px;
+    /* ちょっと角ばらせる */
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    pointer-events: auto;
+}
+
+.btn:hover {
+    background: #5b765a;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.level-select {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+    min-width: 250px;
+}
+
+.btn-level {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 1.4rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.btn-level.locked {
+    background: #555 !important;
+    border-color: #333 !important;
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: grayscale(1);
+    pointer-events: none;
+}
+
+.btn-level.locked::after {
+    content: '🔒';
+    font-size: 1rem;
+    margin-left: 10px;
+}
+
+.btn-level span {
+    font-size: 0.9rem;
+    font-weight: normal;
+    opacity: 0.8;
+}
+
+.btn-level[data-level="1"] { background: #3498db; border-color: #2980b9; }
+.btn-level[data-level="2"] { background: #2ecc71; border-color: #27ae60; }
+.btn-level[data-level="3"] { background: #e67e22; border-color: #d35400; }
+.btn-level[data-level="4"] { background: #e74c3c; border-color: #c0392b; }
+
+.btn-level:hover {
+    filter: brightness(1.1);
+}
+
+/* ホームボタン (マグロ寿司アイコン) */
+.home-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 3px solid #8e6530;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    pointer-events: auto;
+    z-index: 20;
+    transition: transform 0.2s, background 0.2s;
+    overflow: hidden;
+}
+
+.home-button:hover {
+    transform: scale(1.1) rotate(5deg);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.home-button img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.final-score-box {
+    background: #fff;
+    padding: 20px;
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    border: 2px dashed #8e6530;
+    /* 点線で和風感 */
+}
+
+.final-score-box span:first-child {
+    font-size: 1.2rem;
+    color: #666;
+    font-family: 'Shippori Mincho B1', serif;
+}
+
+#finalScoreDisplay {
+    font-size: 4rem;
+    color: #b22222;
+    /* 濃い赤 */
+    font-family: 'Zen Maru Gothic', sans-serif;
+    text-shadow: none;
+}
+
+/* 祝賀演出オーバーレイ */
+.celebration-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 100;
+    overflow: hidden;
+}
+
+.cracker {
+    position: absolute;
+    bottom: -100px;
+    width: 120px;
+    height: 120px;
+    transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.cracker.active {
+    bottom: 0;
+}
+
+#cracker-left { left: 5%; transform: rotate(15deg); }
+#cracker-right { right: 5%; transform: rotate(-15deg); }
+
+.cracker img {
+    width: 100%;
+    height: 100%;
+}
+
+/* 紙吹雪パーティクル */
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #f00;
+    z-index: 101;
+    pointer-events: none;
+}
+
+@keyframes confetti-fall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(800px) rotate(720deg); opacity: 0; }
+}

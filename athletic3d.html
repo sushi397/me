@@ -75,9 +75,9 @@
     <div id="menu">
         <h1 style="font-size:50px; margin-bottom:10px;">NEON BALL 3D (FPS)</h1>
         <div id="diff-select" style="font-size:25px; line-height:1.5;">
-            <div id="opt-easy">EASY</div>
-            <div id="opt-normal">NORMAL</div>
-            <div id="opt-hard">HARD</div>
+            <div id="opt-easy" style="cursor: pointer;">EASY</div>
+            <div id="opt-normal" style="cursor: pointer;">NORMAL</div>
+            <div id="opt-hard" style="cursor: pointer;">HARD</div>
         </div>
         <p class="blink" style="margin-top:20px;">CLICK TO START</p>
     </div>
@@ -98,8 +98,8 @@
         // Super Hard Physics (Modified: Non-slippery)
         const WORLD_GRAVITY = 40;
         const JUMP_FORCE = 12.2;
-        const MOVE_SPEED = 20;
-        const ACCEL = 200; // Increased to match high friction
+        const MOVE_SPEED = 10;
+        const ACCEL = 100; // 移動速度を下げるために加速度を半減
         const FRICTION = 10.0; // High friction = No slide
         const AIR_FRICTION = 2.0; // Better air control
         const MOUSE_SENSITIVITY = 0.002;
@@ -193,7 +193,33 @@
                 }
             });
 
-            // Menu Click start
+            // Menu Click start (directly on options)
+            document.getElementById('opt-easy').addEventListener('click', (e) => {
+                e.stopPropagation(); // 親要素のクリックイベント発火を防ぐ
+                if (gameState === 'MENU' && !isLocked) {
+                    menuSelection = 0;
+                    updateMenuUI();
+                    canvasEl.requestPointerLock();
+                }
+            });
+            document.getElementById('opt-normal').addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (gameState === 'MENU' && !isLocked) {
+                    menuSelection = 1;
+                    updateMenuUI();
+                    canvasEl.requestPointerLock();
+                }
+            });
+            document.getElementById('opt-hard').addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (gameState === 'MENU' && !isLocked) {
+                    menuSelection = 2;
+                    updateMenuUI();
+                    canvasEl.requestPointerLock();
+                }
+            });
+
+            // Fallback for clicking anywhere else on the menu
             document.getElementById('menu').addEventListener('click', () => {
                 if (gameState === 'MENU' && !isLocked) {
                     canvasEl.requestPointerLock();

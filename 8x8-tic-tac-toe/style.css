@@ -1,0 +1,370 @@
+:root {
+  --color-bg: #000000;
+  --color-p1: #00ff00;
+  /* ネオングリーン */
+  --color-p2: #ff00ff;
+  /* ネオンマゼンタ */
+  --color-grid: #333333;
+  --color-text: #ffffff;
+  --color-border: #aaaaaa;
+  --cell-size: clamp(30px, 8vmin, 60px);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'DotGothic16', sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  text-transform: uppercase;
+}
+
+/* CRT画面風のスキャンライン効果 */
+.crt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%,
+      rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg,
+      rgba(255, 0, 0, 0.06),
+      rgba(0, 255, 0, 0.02),
+      rgba(0, 0, 255, 0.06));
+  background-size: 100% 4px, 6px 100%;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 800px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  z-index: 10;
+}
+
+header {
+  text-align: center;
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  color: var(--color-text);
+  text-shadow: 2px 2px 0 var(--color-p1), -2px -2px 0 var(--color-p2);
+  margin-bottom: 0.5rem;
+  letter-spacing: 4px;
+}
+
+.subtitle {
+  color: #ffff00;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+}
+
+.blink {
+  animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
+.game-info {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.turn-indicator {
+  border: 4px solid var(--color-border);
+  padding: 0.5rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #111;
+  box-shadow: 4px 4px 0 var(--color-grid);
+}
+
+.player-icon {
+  font-size: 1.5rem;
+}
+
+.turn-text {
+  font-size: 1.2rem;
+}
+
+.board-container {
+  border: 4px solid var(--color-border);
+  padding: 4px;
+  background-color: var(--color-grid);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8), 8px 8px 0 rgba(255, 255, 255, 0.1);
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(var(--board-size), var(--cell-size));
+  grid-template-rows: repeat(var(--board-size), var(--cell-size));
+  gap: 2px;
+  background-color: var(--color-bg);
+}
+
+.cell {
+  background-color: #000;
+  border: 2px dashed #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: calc(var(--cell-size) * 0.7);
+  user-select: none;
+}
+
+.cell:hover {
+  background-color: #111;
+  border-style: solid;
+  border-color: #555;
+}
+
+.cell.marked {
+  cursor: default;
+}
+
+.mark-o {
+  color: var(--color-p1);
+  text-shadow: 0 0 5px var(--color-p1);
+}
+
+.mark-x {
+  color: var(--color-p2);
+  text-shadow: 0 0 5px var(--color-p2);
+}
+
+.cell.winning-cell {
+  background-color: #333;
+  animation: winner-flash 0.5s infinite;
+}
+
+@keyframes winner-flash {
+  0% {
+    background-color: #000;
+  }
+
+  50% {
+    background-color: #fff;
+    color: #000;
+  }
+
+  100% {
+    background-color: #000;
+  }
+}
+
+.controls {
+  margin-top: 1rem;
+}
+
+.btn-primary {
+  background: #000;
+  color: var(--color-text);
+  border: 4px solid var(--color-text);
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--color-text);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.btn-primary:hover {
+  background: #222;
+}
+
+.btn-primary:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 var(--color-text);
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  display: none;
+  z-index: 100;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
+.modal-content.retro-panel {
+  background: #000;
+  border: 4px solid var(--color-text);
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 10px 10px 0 var(--color-p1);
+}
+
+.modal-overlay.show .modal-content.winner-o {
+  box-shadow: 10px 10px 0 var(--color-p1);
+  border-color: var(--color-p1);
+}
+
+.modal-overlay.show .modal-content.winner-x {
+  box-shadow: 10px 10px 0 var(--color-p2);
+  border-color: var(--color-p2);
+}
+
+.modal-content h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #fff;
+}
+
+.modal-content.winner-o h2 {
+  color: var(--color-p1);
+  text-shadow: 0 0 10px var(--color-p1);
+}
+
+.modal-content.winner-x h2 {
+  color: var(--color-p2);
+  text-shadow: 0 0 10px var(--color-p2);
+}
+
+.modal-content p {
+  font-size: 1.5rem;
+  color: #fff;
+  margin-bottom: 2rem;
+}
+
+/* 追加: スタート画面と表示切り替え */
+.hidden {
+  display: none !important;
+}
+
+/* ホームボタン */
+.home-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  font-size: 2.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 100;
+  transition: transform 0.2s;
+  text-shadow: 2px 2px 0 var(--color-p1);
+}
+
+.home-btn:hover {
+  transform: scale(1.1);
+  text-shadow: 2px 2px 0 var(--color-p2);
+}
+
+.start-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 2rem;
+}
+
+.menu-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.menu-btn {
+  width: 100%;
+  padding: 1.5rem;
+  font-size: 1.5rem;
+  letter-spacing: 2px;
+}
+
+/* スライダー用UI */
+.size-selector-container {
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 2rem;
+  border: 4px solid var(--color-border);
+  padding: 1rem;
+  background: #111;
+  text-align: center;
+}
+
+.size-selector-container label {
+  display: block;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  color: #ff0;
+}
+
+.slider-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.slider-wrapper span {
+  font-size: 1.2rem;
+}
+
+.retro-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--color-grid);
+  outline: none;
+  margin: 10px 0;
+}
+
+.retro-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 30px;
+  background: var(--color-p1);
+  cursor: pointer;
+  border: 4px solid var(--color-text);
+}
+
+.retro-slider::-moz-range-thumb {
+  width: 20px;
+  height: 30px;
+  background: var(--color-p1);
+  cursor: pointer;
+  border: 4px solid var(--color-text);
+}
+
+.current-size {
+  font-size: 1.5rem;
+  color: var(--color-text);
+  margin-top: 0.5rem;
+}

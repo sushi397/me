@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8x8 RETRO TIC-TAC-TOE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="crt-overlay"></div>
+    <div class="app-container">
+        <header>
+            <h1><span id="headerSizeText">8</span>x<span id="headerSizeText2">8</span> TIC-TAC-TOE</h1>
+            <p class="subtitle blink"><span id="headerWinText">8</span> CONNECT TO WIN</p>
+        </header>
+
+        <!-- スタート画面（モード選択） -->
+        <div id="startScreen" class="start-screen">
+            <div class="size-selector-container">
+                <label for="sizeSelector">BOARD SIZE / WIN CONDITION</label>
+                <div class="slider-wrapper">
+                    <span>3</span>
+                    <input type="range" id="sizeSelector" min="3" max="10" value="8" class="retro-slider">
+                    <span>10</span>
+                </div>
+                <div class="current-size" id="currentSizeDisplay">8 x 8 (8 CONNECT)</div>
+            </div>
+
+            <div class="menu-options">
+                <button id="btnPvc" class="btn-primary menu-btn">1P VS COM</button>
+                <button id="btnPvp" class="btn-primary menu-btn">1P VS 2P</button>
+            </div>
+        </div>
+
+        <!-- ゲーム画面 -->
+        <main id="gameScreen" class="hidden">
+            <button id="homeButton" class="home-btn" title="Back to Menu">🏠</button>
+            <div class="game-info">
+                <div class="turn-indicator" id="turnIndicator">
+                    <span class="player-icon" id="currentPlayerIcon">1P</span>
+                    <span class="turn-text" id="turnText">TURN</span>
+                </div>
+            </div>
+
+            <div class="board-container">
+                <div class="board" id="board">
+                    <!-- JSで自動生成 -->
+                </div>
+            </div>
+
+            <div class="controls">
+                <button id="resetButton" class="btn-primary">RESET / 1 COIN</button>
+            </div>
+        </main>
+
+        <!-- 勝利時等のモーダル -->
+        <div class="modal-overlay" id="resultModal">
+            <div class="modal-content retro-panel">
+                <h2 id="resultTitle">PLAYER 1 WINS!</h2>
+                <p id="resultMessage">CONGRATULATIONS!</p>
+                <button id="playAgainButton" class="btn-primary">CONTINUE? 9</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
